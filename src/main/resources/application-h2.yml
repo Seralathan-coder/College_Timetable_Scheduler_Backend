@@ -1,0 +1,64 @@
+spring:
+  datasource:
+    url: jdbc:h2:file:${user.home}/.timetable-scheduler/data/timetabledb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;NON_KEYWORDS=VALUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+        highlight_sql: true
+
+  flyway:
+    enabled: false
+
+app:
+  upload:
+    dir: ${UPLOAD_DIR:./uploads}
+  jwt:
+    secret: TimetableSchedulerSuperSecretKey2025!!PleaseChangeInProduction64ByteMinimum
+    expiration-ms: 86400000          # 24 hours
+    refresh-expiration-ms: 604800000  # 7 days
+  cors:
+    # Local DEV origins. The Vite dev server auto-increments its port when 5173
+    # is busy (5174, 5175, ...), and Spring Security's CORS check rejects an
+    # unlisted Origin with HTTP 403 BEFORE the controller runs, which made the
+    # public POST /auth/register-college fail only on a shifted port.
+    # `http://localhost:[*]` is Spring's allowedOriginPatterns port wildcard and
+    # matches any localhost dev port, so the port can shift without breaking.
+    # Still localhost-only and still credential-restricted; production deployments
+    # should pin exact origins via the CORS_ALLOWED_ORIGINS env var.
+    allowed-origins: http://localhost:3000,http://localhost:[*],http://127.0.0.1:[*],http://localhost:8080
+
+logging:
+  level:
+    com.erp.timetable: DEBUG
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,shutdown
+  endpoint:
+    shutdown:
+      enabled: true
+    health:
+      show-details: always
